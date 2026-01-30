@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
             {
                 inputVector = Vector3.zero;
                 moveDirection = Vector3.zero;
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 moveController.ApplyMovement(Vector3.zero);
                 moveController.UpdateMovement();
                 moveController.enabled=false;
@@ -180,7 +180,7 @@ public class PlayerController : MonoBehaviour
         // Update animator parameters
         characterAnimator.SetFloat(MovementController.AnimationID_DistanceToTarget, moveController.distanceToDestination);
         characterAnimator.SetBool(MovementController.AnimationID_IsGrounded, moveController.isGrounded);
-        characterAnimator.SetFloat(MovementController.AnimationID_YVelocity, rb.velocity.y);
+        characterAnimator.SetFloat(MovementController.AnimationID_YVelocity, rb.linearVelocity.y);
     }
 
 } 

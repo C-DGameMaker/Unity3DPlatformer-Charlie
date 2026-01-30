@@ -213,7 +213,7 @@ public class HealthController : MonoBehaviour
 
 		if (TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
 		{
-			rigidbody.velocity = Vector3.zero;
+			rigidbody.linearVelocity = Vector3.zero;
 			rigidbody.position = respawnPoint;
 		}
 			
@@ -273,7 +273,7 @@ public class HealthController : MonoBehaviour
 				return false;
 		} else if (takesCollisionDamageFromRigidbodies && collision.rigidbody)
 		{
-            if (Mathf.Max(collision.rigidbody.velocity.magnitude, collision.relativeVelocity.magnitude) < minCollisionDamageVelocity)
+            if (Mathf.Max(collision.rigidbody.linearVelocity.magnitude, collision.relativeVelocity.magnitude) < minCollisionDamageVelocity)
                 return false;
         }
 			
@@ -291,7 +291,7 @@ public class HealthController : MonoBehaviour
 		collisionDamage = 0;
 		if (collision.rigidbody && takesCollisionDamageFromRigidbodies)
 		{
-			collisionDamage = (int)Mathf.RoundToInt((collision.rigidbody.velocity.magnitude * 0.2f) * collision.rigidbody.mass);
+			collisionDamage = (int)Mathf.RoundToInt((collision.rigidbody.linearVelocity.magnitude * 0.2f) * collision.rigidbody.mass);
 		}
 		else if (!collision.rigidbody && takesCollisionDamageFromStaticbodies)
 		{

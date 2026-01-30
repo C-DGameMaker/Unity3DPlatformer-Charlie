@@ -89,7 +89,7 @@ public static class CheckpointManager
                     currentCheckpoint.z
                 );
             if (player.TryGetComponent(out Rigidbody rb)) { 
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 rb.position = newPosition;
             }

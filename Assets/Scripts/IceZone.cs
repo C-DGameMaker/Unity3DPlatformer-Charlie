@@ -84,12 +84,12 @@ public class IceZone : MonoBehaviour
         }
 
         // Create ice physics material
-        PhysicMaterial iceMaterial = new PhysicMaterial
+        PhysicsMaterial iceMaterial = new PhysicsMaterial
         {
             dynamicFriction = collider.material.dynamicFriction * (1 - slipperiness),
             staticFriction = 0, // Remove static friction for consistent sliding
-            frictionCombine = PhysicMaterialCombine.Minimum,
-            bounceCombine = PhysicMaterialCombine.Minimum
+            frictionCombine = PhysicsMaterialCombine.Minimum,
+            bounceCombine = PhysicsMaterialCombine.Minimum
         };
         
         // Apply ice physics

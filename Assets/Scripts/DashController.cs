@@ -224,7 +224,7 @@ public class DashController : MonoBehaviour
             nextAfterImageSpawn = dashProgress + 0.19f;
         }
         // Apply dash movement
-        rb.velocity = dashDirection * dashSpeed * dashCurve.Evaluate(dashProgress);
+        rb.linearVelocity = dashDirection * dashSpeed * dashCurve.Evaluate(dashProgress);
         if (dashProgress > 0.85f && moveController != null)
             moveController.enabled = true;
 

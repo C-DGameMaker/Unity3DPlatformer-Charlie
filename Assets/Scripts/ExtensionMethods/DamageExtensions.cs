@@ -66,7 +66,7 @@ public static class DamageExtensions
 
     private static void ApplyKnockback(Rigidbody targetRigidbody, Vector3 direction, float height, float force)
     {
-        targetRigidbody.velocity = Vector3.zero; // Reset velocity before applying knockback
+        targetRigidbody.linearVelocity = Vector3.zero; // Reset velocity before applying knockback
         targetRigidbody.AddForce(direction * force, ForceMode.VelocityChange);
         targetRigidbody.AddForce(Vector3.up * height, ForceMode.VelocityChange);
     }

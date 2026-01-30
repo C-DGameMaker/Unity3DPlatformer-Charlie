@@ -27,7 +27,7 @@ public class MovementController : MonoBehaviour
     protected Vector3 baseModelScale;
     public bool overrideCanJump { get; set; } = false;
 
-    public Vector3 CurrentVelocity { get => rb != null ? rb.velocity : Vector3.zero; }
+    public Vector3 CurrentVelocity { get => rb != null ? rb.linearVelocity : Vector3.zero; }
     public static int AnimationID_DistanceToTarget = Animator.StringToHash("DistanceToTarget");
     public static int AnimationID_IsGrounded = Animator.StringToHash("Grounded");
     public static int AnimationID_YVelocity = Animator.StringToHash("YVelocity");
@@ -37,7 +37,7 @@ public class MovementController : MonoBehaviour
     public static int AnimationID_Attack = Animator.StringToHash("Attack");
     public static int AnimationID_Dash = Animator.StringToHash("Dash");
 
-    protected static PhysicMaterial frictionlessMaterial = null;
+    protected static PhysicsMaterial frictionlessMaterial = null;
 
 	[Header("Squash and Stretch")]
 	public Vector3 SquashEffect = new Vector3(1.2f, 0.8f, 1.2f);
@@ -91,12 +91,12 @@ public class MovementController : MonoBehaviour
 		mainCollider.material = frictionlessMaterial;
 	}
 
-	private PhysicMaterial CreateFrictionlessMaterial()
+	private PhysicsMaterial CreateFrictionlessMaterial()
 	{
-		var material = new PhysicMaterial {
+		var material = new PhysicsMaterial {
 			name = "Frictionless",
-			frictionCombine = PhysicMaterialCombine.Minimum,
-			bounceCombine = PhysicMaterialCombine.Minimum,
+			frictionCombine = PhysicsMaterialCombine.Minimum,
+			bounceCombine = PhysicsMaterialCombine.Minimum,
 			dynamicFriction = 0f,
 			staticFriction = 0f
 		};
@@ -118,7 +118,7 @@ public class MovementController : MonoBehaviour
 		// Handle slipperiness possibility with override multiplier.
         if (overridingMultiplyForceAndFriction.magnitude > 0.0001f) {
 			if (overridingMultiplyForceAndFriction.y < 0.6f) {
-				var useVelocity = rb.velocity.magnitude > 0.001f ? rb.velocity : moveDirection;
+				var useVelocity = rb.linearVelocity.magnitude > 0.001f ? rb.linearVelocity : moveDirection;
 				var directionAlignCheck = useVelocity.dotProduct(moveDirection);
 				moveForce *= (1.2f - overridingMultiplyForceAndFriction.x) * Mathf.Clamp(1.0f - ((directionAlignCheck + 1.0f) * 0.5f), 0.38f, 1.0f);
 			} else
@@ -145,8 +145,8 @@ public class MovementController : MonoBehaviour
     public void AlignWithVelocity(bool lockVertical)
 	{	
 		Vector3 velocityDirection = lockVertical 
-			? new Vector3(rb.velocity.x, 0f, rb.velocity.z)
-			: rb.velocity;
+			? new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z)
+			: rb.linearVelocity;
 		
 		ApplyRotation(velocityDirection, rotationSpeed);
 	}
@@ -176,7 +176,7 @@ public class MovementController : MonoBehaviour
 			Quaternion newRotation = Quaternion.Slerp(
 				transform.rotation, 
 				targetRotation, 
-				direction.magnitude * (Mathf.Clamp(rotationSpeed - rb.angularDrag * 5f, rotationSpeed*0.4f,rotationSpeed)) * Time.deltaTime
+				direction.magnitude * (Mathf.Clamp(rotationSpeed - rb.angularDamping * 5f, rotationSpeed*0.4f,rotationSpeed)) * Time.deltaTime
 			);
 			rb.MoveRotation(newRotation);
 		}
@@ -200,15 +200,15 @@ public class MovementController : MonoBehaviour
 	{
 		if (overridingMultiplyForceAndFriction.magnitude > 0.0001f)
 			friction *= overridingMultiplyForceAndFriction.y;
-		currentVelocity = rb.velocity.SetY(lockVertical ? 0 : rb.velocity.y);
+		currentVelocity = rb.linearVelocity.SetY(lockVertical ? 0 : rb.linearVelocity.y);
 		if (trail != null)
 			trail.emitting = currentVelocity.magnitude > 0.5f;
 		if (currentVelocity.magnitude > 0) {
-            ApplyFrictionForce(friction + (rb.drag * 10.0f));
-            currentVelocity = rb.velocity.SetY(lockVertical ? 0 : rb.velocity.y);
+            ApplyFrictionForce(friction + (rb.linearDamping * 10.0f));
+            currentVelocity = rb.linearVelocity.SetY(lockVertical ? 0 : rb.linearVelocity.y);
 
 			if (currentVelocity.magnitude > speedLimit) {
-				ApplyFrictionForce(friction + (rb.drag * 10.0f));
+				ApplyFrictionForce(friction + (rb.linearDamping * 10.0f));
 			}
         }
     }

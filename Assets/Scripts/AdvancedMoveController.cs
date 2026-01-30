@@ -154,7 +154,7 @@ public class AdvancedMoveController : MovementController
     {
         // Reset vertical velocity for consistent jump heights
         onJumpPerformed.Invoke();
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddRelativeForce(jumpForce, ForceMode.Impulse);
         ApplyJumpSquashEffect();
     }
@@ -245,7 +245,7 @@ public class AdvancedMoveController : MovementController
                 slideDuration = 0f;
             }
 
-            if (hit.transform.CompareTag("Enemy") && rb.velocity.y < 0 && hit.transform.TryGetComponent(out EnemyController enemy))
+            if (hit.transform.CompareTag("Enemy") && rb.linearVelocity.y < 0 && hit.transform.TryGetComponent(out EnemyController enemy))
             {
                 enemy.HandlePlayerBounce();
                 gameObject.ApplyDamageAndKnockback(enemy.gameObject, stompDamage, 0f, 0f);
@@ -259,7 +259,7 @@ public class AdvancedMoveController : MovementController
             if ((hit.transform.CompareTag("MovingPlatform") || hit.transform.CompareTag("Pushable")) 
                 && hit.rigidbody != null)
             {
-                platformVelocity = hit.rigidbody.velocity.SetY(0);
+                platformVelocity = hit.rigidbody.linearVelocity.SetY(0);
                 rb.AddForce(
                     platformVelocity * platformGripForce * Time.fixedDeltaTime,
                     ForceMode.VelocityChange
@@ -310,9 +310,9 @@ public class AdvancedMoveController : MovementController
     {
         if (lastReceivedMovementDirection.magnitude < 0.001f && other.collider.CompareTag("Untagged") && isGrounded)
         {
-            if (rb.velocity.magnitude < 2 && slopeAngle < maxTraversableSlope)
+            if (rb.linearVelocity.magnitude < 2 && slopeAngle < maxTraversableSlope)
             {
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
             }
         }
     }

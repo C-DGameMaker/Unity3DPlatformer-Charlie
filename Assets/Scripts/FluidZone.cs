@@ -106,7 +106,7 @@ public class FluidZone : MonoBehaviour
         if (!immersionSound) return;
         
         float volume = rigidbody != null ? 
-            Mathf.Clamp01(rigidbody.velocity.magnitude / 5f) : 
+            Mathf.Clamp01(rigidbody.linearVelocity.magnitude / 5f) : 
             1f;
             
         AudioSource.PlayClipAtPoint(immersionSound, transform.position, volume);
@@ -114,28 +114,28 @@ public class FluidZone : MonoBehaviour
     
     private void StoreDragValues(Rigidbody rigidbody)
     {
-        originalDragValues[rigidbody.gameObject] = (rigidbody.drag, rigidbody.angularDrag);
+        originalDragValues[rigidbody.gameObject] = (rigidbody.linearDamping, rigidbody.angularDamping);
     }
     
     private void ApplyFluidPhysics(Rigidbody rigidbody)
     {
-        rigidbody.drag = linearDrag;
-        rigidbody.angularDrag = angularDrag;
+        rigidbody.linearDamping = linearDrag;
+        rigidbody.angularDamping = angularDrag;
     }
     
     private void RestoreOriginalPhysics(Rigidbody rigidbody)
     {
         if (originalDragValues.TryGetValue(rigidbody.gameObject, out var dragValues))
         {
-            rigidbody.drag = dragValues.linear;
-            rigidbody.angularDrag = dragValues.angular;
+            rigidbody.linearDamping = dragValues.linear;
+            rigidbody.angularDamping = dragValues.angular;
             originalDragValues.Remove(rigidbody.gameObject);
         }
         else
         {
             // Fallback to Unity's default values
-            rigidbody.drag = 0f;
-            rigidbody.angularDrag = 0.05f;
+            rigidbody.linearDamping = 0f;
+            rigidbody.angularDamping = 0.05f;
             Debug.LogWarning($"Original physics values not found for {rigidbody.gameObject.name}. Restored defaults.", rigidbody);
         }
     }
