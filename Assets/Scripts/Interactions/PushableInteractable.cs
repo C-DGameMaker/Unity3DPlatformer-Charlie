@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Represents an object that can be grabbed and pushed/pulled by the player.
+/// Represents an object that can be grabbed and swinged upon
 /// The player will be locked facing the object while interacting with it.
 /// </summary>
 public class PushableInteractable : PhysicsInteractable
@@ -52,9 +52,7 @@ public class PushableInteractable : PhysicsInteractable
     {
         if (currentInteractor) OnInteractionEnd(currentInteractor);
     }
-    /// <summary>
-    /// Overrides the base attachment to add break force limits to the joint.
-    /// </summary>
+  
     protected override void AttachToController<T>(InteractionController controller)
     {
         base.AttachToController<T>(controller);
