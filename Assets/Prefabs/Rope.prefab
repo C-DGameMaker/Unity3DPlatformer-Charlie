@@ -673,6 +673,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jointBreakForce: 200
   jointBreakTorque: 200
+  jumpForce: 15
 --- !u!1 &8109124125734684873
 GameObject:
   m_ObjectHideFlags: 0

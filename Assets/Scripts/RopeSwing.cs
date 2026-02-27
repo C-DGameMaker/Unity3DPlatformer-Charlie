@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 //As it is a Physics interactable, it is apart of that thingy thing. We all know the thingy thing. I forget the name of it. 
 public class RopeSwing : PhysicsInteractable
@@ -10,6 +11,9 @@ public class RopeSwing : PhysicsInteractable
     [SerializeField] private float jointBreakForce = 200f;
     [Tooltip("Rotational force required to break the connection with the player")]
     [SerializeField] private float jointBreakTorque = 200f;
+
+    [Tooltip("Force applied when you jump off the vine")]
+    [SerializeField] float jumpForce = 20f;
 
     //This stuff came from the interactable script, but also calls the movement controller and the players rotation speed. It's not like the player can rotate anyways. 
     private MovementController movementController;
@@ -44,11 +48,27 @@ public class RopeSwing : PhysicsInteractable
             currentInteractor.EndCurrentInteraction();
     }
 
+    private void Update()
+    {
+        if (currentInteractor == null) return;
+
+        // Assuming you have the input system on the player
+        var playerInput = currentInteractor.GetComponent<PlayerInput>();
+        if (playerInput != null && playerInput.actions["Jump"].WasPressedThisFrame())
+        {
+            SwingJump();
+        }
+    }
 
     public override void OnInteractedAlreadyInteracting(InteractionController controller)
     {
         base.OnInteractedAlreadyInteracting(controller);
-        SwingJump();
+        DropDown();
+    }
+
+    protected void DropDown()
+    {
+        if (currentInteractor) OnInteractionEnd(currentInteractor);
     }
 
     protected void SwingJump()
@@ -57,13 +77,12 @@ public class RopeSwing : PhysicsInteractable
         if (currentInteractor == null) return;
         Rigidbody playerRb = currentInteractor.GetComponent<Rigidbody>();
         Vector3 launchVelocity = playerRb.linearVelocity;
-        launchVelocity.y = 0f;
-
-        float jumpForce = 8f;
 
         DetachFromController();
 
-        playerRb.linearVelocity = launchVelocity + Vector3.up * jumpForce;
+        Vector3 swingDirection = (transform.position - currentInteractor.transform.position).normalized;
+        Vector3 jumpDir = swingDirection + Vector3.up * 0.3f; // tweak upward component
+        playerRb.linearVelocity = launchVelocity + jumpDir.normalized * jumpForce;
         Debug.Log("End");
     }
 
