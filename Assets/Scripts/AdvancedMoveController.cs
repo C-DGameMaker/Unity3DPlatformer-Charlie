@@ -59,6 +59,7 @@ public class AdvancedMoveController : MovementController
 
     // State properties
     public bool isGrounded { get; private set; }
+    public bool isSwinging { get; private set; }
     public float slopeAngle { get; private set; }
     public Vector3 platformVelocity { get; private set; }
     public float timeGrounded { get; private set; }
