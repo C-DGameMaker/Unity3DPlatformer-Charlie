@@ -48,7 +48,8 @@ public class PushableInteractable : PhysicsInteractable
         PusherJumped();
     }
 
-    protected void PusherJumped() {
+    protected void PusherJumped() 
+    {
         if (currentInteractor) OnInteractionEnd(currentInteractor);
     }
     /// <summary>
