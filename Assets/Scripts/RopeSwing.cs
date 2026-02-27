@@ -12,8 +12,9 @@ public class RopeSwing : PhysicsInteractable
     [Tooltip("Rotational force required to break the connection with the player")]
     [SerializeField] private float jointBreakTorque = 200f;
 
+    //As stated, this applies force for when you jump off the vine. 
     [Tooltip("Force applied when you jump off the vine")]
-    [SerializeField] float jumpForce = 20f;
+    [SerializeField] float jumpForce = 15f;
 
     //This stuff came from the interactable script, but also calls the movement controller and the players rotation speed. It's not like the player can rotate anyways. 
     private MovementController movementController;
@@ -35,8 +36,7 @@ public class RopeSwing : PhysicsInteractable
             {
                 (movementController as AdvancedMoveController).onJumpPerformed.AddListener(SwingJump);
             }
-            defaultPlayerRotationSpeed = movementController.rotationSpeed;
-            movementController.rotationSpeed = 0;
+            RotationSpeed();
         }
 
         AttachToController<FixedJoint>(controller);
@@ -83,6 +83,10 @@ public class RopeSwing : PhysicsInteractable
         Vector3 swingDirection = (transform.position - currentInteractor.transform.position).normalized;
         Vector3 jumpDir = swingDirection + Vector3.up * 0.3f; // tweak upward component
         playerRb.linearVelocity = launchVelocity + jumpDir.normalized * jumpForce;
+
+        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Rope"), true);
+        RotationSpeed();
+
         Debug.Log("End");
     }
 
@@ -95,6 +99,20 @@ public class RopeSwing : PhysicsInteractable
             physicsJoint.breakTorque = jointBreakTorque;
             physicsJoint.massScale = 3.0f;
             physicsJoint.connectedMassScale = 3.0f;
+        }
+    }
+
+    private void RotationSpeed()
+    {
+        if(movementController.rotationSpeed > 0)
+        {
+            defaultPlayerRotationSpeed = movementController.rotationSpeed;
+            movementController.rotationSpeed = 0;
+        }
+        else
+        {
+            movementController.rotationSpeed = defaultPlayerRotationSpeed;
+            movementController = null;
         }
     }
 
@@ -113,8 +131,7 @@ public class RopeSwing : PhysicsInteractable
             {
                 (movementController as AdvancedMoveController).onJumpPerformed.RemoveListener(SwingJump);
             }
-            movementController.rotationSpeed = defaultPlayerRotationSpeed;
-            movementController = null;
+            RotationSpeed();
         }
         base.OnInteractionEnd(controller);
     }
