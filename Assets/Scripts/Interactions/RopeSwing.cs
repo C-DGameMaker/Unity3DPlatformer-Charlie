@@ -2,6 +2,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(AudioSource))]
 //As it is a Physics interactable, it is apart of that thingy thing. We all know the thingy thing. I forget the name of it. 
 public class RopeSwing : PhysicsInteractable
 {
@@ -15,6 +17,12 @@ public class RopeSwing : PhysicsInteractable
     //As stated, this applies force for when you jump off the vine. 
     [Tooltip("Force applied when you jump off the vine")]
     [SerializeField] float jumpForce = 15f;
+
+    //It'll play audio as you swing
+    [Tooltip("Plays Audio for when you're swinging")]
+    [SerializeField] AudioSource _ropeSounds;
+    [SerializeField] AudioSource _landSounds;
+    [SerializeField] float minSwingVelocity = 0.5f;
 
     //This stuff came from the interactable script, but also calls the movement controller and the players rotation speed. It's not like the player can rotate anyways. 
     private MovementController movementController;
@@ -77,6 +85,37 @@ public class RopeSwing : PhysicsInteractable
     {
         if (currentInteractor == null) return;
 
+        //Checks to see if it's null. 
+        if(_ropeSounds == null)
+        {
+            //Will add the Component
+            _ropeSounds = GetComponent<AudioSource>();
+            //then if it's null still, gives a debug log error. 
+            if(_ropeSounds == null)
+            {
+                Debug.Log("How did we get here?");
+            }
+        }
+
+        float swingSpeed = rb.linearVelocity.magnitude;
+
+        //If the rope is swinging fast enough, will play sounds. 
+        if (swingSpeed > minSwingVelocity)
+        {
+            if (!_ropeSounds.isPlaying)
+                _ropeSounds.Play();
+
+            //And changes the pitch
+            _ropeSounds.pitch = Mathf.Clamp(swingSpeed / 5f, 0.8f, 1.5f);
+            _ropeSounds.volume = Mathf.Clamp(swingSpeed / 5f, 0.2f, 1f);
+        }
+        else
+        {
+            if (_ropeSounds.isPlaying)
+                _ropeSounds.Stop();
+        }
+
+
         //This will allow you to jump off the rope as it is mid swing
         var playerInput = currentInteractor.GetComponent<PlayerInput>();
         if (playerInput != null && playerInput.actions["Jump"].WasPressedThisFrame())
@@ -116,6 +155,7 @@ public class RopeSwing : PhysicsInteractable
         Vector3 swingDirection = (transform.position - currentInteractor.transform.position).normalized;
         Vector3 jumpDir = swingDirection + Vector3.up * 0.3f; 
         playerRb.linearVelocity = launchVelocity + jumpDir.normalized * jumpForce;
+
         //It then resets your rotation speed
         RotationSpeed();
     }
