@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -21,7 +22,6 @@ public class RopeSwing : PhysicsInteractable
     //It'll play audio as you swing
     [Tooltip("Plays Audio for when you're swinging")]
     [SerializeField] AudioSource _ropeSounds;
-    [SerializeField] AudioSource _landSounds;
     [SerializeField] float minSwingVelocity = 0.5f;
 
     //This stuff came from the interactable script, but also calls the movement controller and the players rotation speed. It's not like the player can rotate anyways. 
@@ -145,8 +145,20 @@ public class RopeSwing : PhysicsInteractable
         //Gets the player RigidBody, so you can send it .
         Rigidbody playerRb = currentInteractor.GetComponent<Rigidbody>();
 
+        //Gets the colliders for both player and rope
+        Collider playerCollider = currentInteractor.GetComponent<Collider>();
+        Collider ropeCollider = GetComponent<Collider>();
+
+        // Temporarily ignore collision between player and rope
+        if (playerCollider != null && ropeCollider != null)
+        {
+            Physics.IgnoreCollision(playerCollider, ropeCollider, true);
+        }
+            
+
         //Makes a new vector 3 for the launch, with the player's linear velocity. 
         Vector3 launchVelocity = playerRb.linearVelocity;
+
 
         //Detatches the joints from the controller. 
         DetachFromController();
@@ -156,8 +168,19 @@ public class RopeSwing : PhysicsInteractable
         Vector3 jumpDir = swingDirection + Vector3.up * 0.3f; 
         playerRb.linearVelocity = launchVelocity + jumpDir.normalized * jumpForce;
 
-        //It then resets your rotation speed
-        RotationSpeed();
+        //stops the interaction
+        if (currentInteractor) OnInteractionEnd(currentInteractor);
+
+        //Reembales the collider
+        StartCoroutine(ReenableCollision(playerCollider, ropeCollider, 1f));
+    }
+
+    //Reemables the collision for the player and the rope
+    private IEnumerator ReenableCollision(Collider playerCollider, Collider ropeCollider, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (playerCollider != null && ropeCollider != null)
+            Physics.IgnoreCollision(playerCollider, ropeCollider, false);
     }
 
     //This just attachs the thing to the controller. 
